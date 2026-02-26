@@ -71,3 +71,23 @@ export const updateUsuario = async (req, res) => {
         res.status(500).json({ mensaje: "Error al actualizar", error: error.message });
     }
 };
+export const authUser = async (req, res) => {
+    const { email, password } = req.body;
+    try {
+        const user = await User.findOne({ email });
+
+        // IMPORTANTE: bcrypt.compare compara el texto plano con el hash
+        if (user && (await bcrypt.compare(password, user.password))) {
+            res.json({
+                _id: user._id,
+                username: user.username,
+                email: user.email,
+                isAdmin: user.isAdmin,
+            });
+        } else {
+            res.status(401).json({ message: 'Email o contraseña incorrectos' });
+        }
+    } catch (error) {
+        res.status(500).json({ message: 'Error en el servidor' });
+    }
+};

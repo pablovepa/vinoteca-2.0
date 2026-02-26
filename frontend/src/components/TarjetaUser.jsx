@@ -2,13 +2,19 @@ const TarjetaUser = ({ usuario, onEliminar, onEditar }) => {
     return (
         <div style={styles.card}>
             <div style={styles.info}>
-                {/* Mostramos el nombre (username) y el email */}
-                <strong style={styles.nombre}>{usuario.username}</strong>
-                <span style={styles.email}>{usuario.email}</span>
+                {/* Envolvemos cada dato en un div para forzar el salto de línea */}
+                <div style={styles.dato}>
+                    <strong>Usuario:</strong> {usuario.username}
+                </div>
+                <div style={styles.dato}>
+                    <strong>Email:</strong> {usuario.email}
+                </div>
+                <div style={styles.dato}>
+                    <strong>Rol:</strong> {usuario.isAdmin ? "Administrador" : "Empleado"}
+                </div>
             </div>
 
             <div style={styles.acciones}>
-                {/* BOTÓN EDITAR (El que te falta) */}
                 <button
                     onClick={() => onEditar(usuario)}
                     style={styles.btnEditar}
@@ -16,7 +22,6 @@ const TarjetaUser = ({ usuario, onEliminar, onEditar }) => {
                     ✏️ Editar
                 </button>
 
-                {/* BOTÓN ELIMINAR */}
                 <button
                     onClick={() => onEliminar(usuario._id)}
                     style={styles.btnEliminar}

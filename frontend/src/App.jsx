@@ -3,6 +3,7 @@ import ListaVinos from './components/ListaVinos';
 import FormularioVino from './components/FormularioVino';
 import FormularioUser from './components/FormularioUser';
 import TarjetaUser from './components/TarjetaUser';
+import Login from './components/Login';
 
 function App() {
   const [vista, setVista] = useState('vinos');
@@ -11,6 +12,21 @@ function App() {
   const [vinoEditando, setVinoEditando] = useState(null);
   const [user, setUser] = useState([]);
   const [usuarioEditando, setUsuarioEditando] = useState(null);
+  const [usuarioLogueado, setUsuarioLogueado] = useState(null);
+  // 2. SEGUNDO: El useEffect (Siempre debe ejecutarse)
+  useEffect(() => {
+    // Intentar recuperar la sesión del localStorage
+    const guardado = localStorage.getItem('userVinoteca');
+    if (guardado) {
+      setUsuarioLogueado(JSON.parse(guardado));
+    }
+
+    // Solo cargar datos si hay alguien logueado
+    if (usuarioLogueado || guardado) {
+      obtenerVinos();
+      obtenerUsuarios();
+    }
+  }, []);
   const obtenerVinos = async () => {
     const res = await fetch('http://localhost:5000/api/vinos');
     const data = await res.json();
@@ -37,14 +53,11 @@ function App() {
     }
   };
   const manejarEliminacionLocal = (id) => {
-    // Filtramos el array de vinos eliminando el que coincide con el ID
-    // Esto es INSTANTÁNEO en la pantalla
-    setVinos(vinos.filter(v => v._id !== id));
+    // Usamos la versión de función de setState para asegurarnos 
+    // de tener el estado más reciente (prevVinos)
+    setVinos(prevVinos => prevVinos.filter(v => v._id !== id));
   };
-  useEffect(() => {
-    obtenerVinos();
-    obtenerUsuarios();
-  }, []);
+
 
   return (
     <div style={styles.contenedorPadre}>
