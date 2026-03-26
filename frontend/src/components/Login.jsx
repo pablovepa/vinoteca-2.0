@@ -27,34 +27,27 @@ const Login = ({ onLoginSuccess }) => {
     };
 
     return (
-        <div style={styles.container}>
-            <form onSubmit={manejarLogin} style={styles.form}>
+        <div className="login-container">
+            <form onSubmit={manejarLogin} className="login-form">
                 <h2>🍷 Vinoteca Login</h2>
                 <input
                     type="email"
                     placeholder="Email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    style={styles.input}
+                    className="login-input"
                 />
                 <input
                     type="password"
                     placeholder="Contraseña"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    style={styles.input}
+                    className="login-input"
                 />
-                <button type="submit" style={styles.button}>Entrar</button>
+                <button type="submit" className="login-button">Entrar</button>
             </form>
         </div>
     );
-};
-
-const styles = {
-    container: { display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', backgroundColor: '#800020' },
-    form: { padding: '20px', borderRadius: '8px', backgroundColor: '#080304ff', boxShadow: '0 4px 6px rgba(0,0,0,0.1)', display: 'flex', flexDirection: 'column', gap: '10px', width: '300px' },
-    input: { padding: '10px', border: '1px solid #0f0e0eff', borderRadius: '4px', color: '#333', backgroundColor: '#fff' },
-    button: { padding: '10px', backgroundColor: '#140a0dff', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }
 };
 
 export default Login;

@@ -16,7 +16,7 @@ const FormularioVino = ({ onActualizar, vinoEditando, setVinoEditando }) => {
     }
   }, [vinoEditando]);
 
-  const handleSubmit = async (e) => {
+    const handleSubmit = async (e) => {
     e.preventDefault();
     const datos = { nombre, bodega, precio: Number(precio) };
 
@@ -25,11 +25,15 @@ const FormularioVino = ({ onActualizar, vinoEditando, setVinoEditando }) => {
       : 'http://localhost:5000/api/vinos';
 
     const metodo = vinoEditando ? 'PUT' : 'POST';
+    const token = JSON.parse(localStorage.getItem('userVinoteca'))?.token;
 
     try {
       const res = await fetch(url, {
         method: metodo,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+        },
         body: JSON.stringify(datos)
       });
 
@@ -44,30 +48,22 @@ const FormularioVino = ({ onActualizar, vinoEditando, setVinoEditando }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} style={styles.form}>
-      <h3 style={{ color: '#333' }}>{vinoEditando ? 'Editar Vino' : 'Nueva Carga'}</h3>
-      <input style={styles.input} type="text" placeholder="Nombre" value={nombre} onChange={e => setNombre(e.target.value)} required />
-      <input style={styles.input} type="text" placeholder="Bodega" value={bodega} onChange={e => setBodega(e.target.value)} required />
-      <input style={styles.input} type="number" placeholder="Precio" value={precio} onChange={e => setPrecio(e.target.value)} required />
+    <form onSubmit={handleSubmit} className="fv-form">
+      <h3 className="fv-title">{vinoEditando ? 'Editar Vino' : 'Nueva Carga'}</h3>
+      <input className="fv-input" type="text" placeholder="Nombre" value={nombre} onChange={e => setNombre(e.target.value)} required />
+      <input className="fv-input" type="text" placeholder="Bodega" value={bodega} onChange={e => setBodega(e.target.value)} required />
+      <input className="fv-input" type="number" placeholder="Precio" value={precio} onChange={e => setPrecio(e.target.value)} required />
 
-      <div style={{ display: 'flex', gap: '10px' }}>
-        <button type="submit" style={vinoEditando ? styles.btnUpdate : styles.btnSave}>
+      <div className="fv-actions">
+        <button type="submit" className={vinoEditando ? 'fv-btn-update' : 'fv-btn-save'}>
           {vinoEditando ? 'Actualizar' : 'Guardar'}
         </button>
         {vinoEditando && (
-          <button type="button" onClick={() => setVinoEditando(null)} style={styles.btnCancel}>Cancelar</button>
+          <button type="button" onClick={() => setVinoEditando(null)} className="fv-btn-cancel">Cancelar</button>
         )}
       </div>
     </form>
   );
-};
-
-const styles = {
-  form: { display: 'flex', flexDirection: 'column', gap: '10px', padding: '20px', backgroundColor: '#f4f4f4', borderRadius: '8px' },
-  input: { padding: '10px', borderRadius: '4px', border: '1px solid #ccc', color: '#333' },
-  btnSave: { backgroundColor: '#722f37', color: 'white', padding: '10px', border: 'none', cursor: 'pointer' },
-  btnUpdate: { backgroundColor: '#28a745', color: 'white', padding: '10px', border: 'none', cursor: 'pointer' },
-  btnCancel: { backgroundColor: '#666', color: 'white', padding: '10px', border: 'none', cursor: 'pointer' }
 };
 
 export default FormularioVino;

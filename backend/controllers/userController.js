@@ -1,5 +1,14 @@
 import User from '../models/User.js';
 import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+
+// Generar Token JWT
+const generateToken = (id) => {
+    const secret = process.env.JWT_SECRET || 'supersecretjwtvinoteca';
+    return jwt.sign({ id }, secret, {
+        expiresIn: '30d',
+    });
+};
 
 // Registrar Usuario
 export const registrarUsuario = async (req, res) => {
@@ -20,7 +29,14 @@ export const registrarUsuario = async (req, res) => {
         });
 
         await nuevoUsuario.save();
-        res.status(201).json({ mensaje: "Usuario creado con éxito" });
+        res.status(201).json({ 
+            mensaje: "Usuario creado con éxito",
+            _id: nuevoUsuario._id,
+            username: nuevoUsuario.username,
+            email: nuevoUsuario.email,
+            isAdmin: nuevoUsuario.isAdmin,
+            token: generateToken(nuevoUsuario._id),
+        });
     } catch (error) {
         console.log(error);
         res.status(500).json({ mensaje: "Error al registrar", error: error.message });
@@ -83,6 +99,7 @@ export const authUser = async (req, res) => {
                 username: user.username,
                 email: user.email,
                 isAdmin: user.isAdmin,
+                token: generateToken(user._id),
             });
         } else {
             res.status(401).json({ message: 'Email o contraseña incorrectos' });

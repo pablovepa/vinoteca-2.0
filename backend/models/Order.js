@@ -1,22 +1,31 @@
 import mongoose from 'mongoose';
 
-const OrderSchema = new mongoose.Schema({
-  buyer: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  game: { type: mongoose.Schema.Types.ObjectId, ref: 'Game', required: true },
-  gameData: { // <-- nueva sección
-    name: { type: String, required: true },
-    price: { type: Number, required: true },
-    image: { type: String },
-    description: { type: String }
-  },
-  price: { type: Number, required: true },
-  status: { type: String, enum: ['pending','paid','cancelled'], default: 'pending' },
-  createdAt: { type: Date, default: Date.now },
-  paymentInfo: {
-    cardHolder: String,
-    last4: String,
-    simulated: { type: Boolean, default: true }
-  }
+const orderSchema = new mongoose.Schema({
+    user: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true,
+        ref: 'User'
+    },
+    items: [
+        {
+            vino: {
+                type: mongoose.Schema.Types.ObjectId,
+                required: true,
+                ref: 'Vino'
+            },
+            nombre: { type: String, required: true },
+            cantidad: { type: Number, required: true },
+            precioUnitario: { type: Number, required: true }
+        }
+    ],
+    total: {
+        type: Number,
+        required: true,
+        default: 0.0
+    }
+}, {
+    timestamps: true
 });
 
-export default mongoose.model('Order', OrderSchema);
+const Order = mongoose.model('Order', orderSchema);
+export default Order;

@@ -4,9 +4,13 @@ import FormularioVino from './components/FormularioVino';
 import FormularioUser from './components/FormularioUser';
 import TarjetaUser from './components/TarjetaUser';
 import Login from './components/Login';
+import CajaVentas from './components/CajaVentas';
+import HistorialVentas from './components/HistorialVentas';
 
 function App() {
-  const [vista, setVista] = useState('vinos');
+  const [vista, setVista] = useState('vinos'); // 'vinos', 'usuarios', 'ventas'
+  const [subVistaVinos, setSubVistaVinos] = useState('menu'); // 'menu', 'ingreso', 'modificar', 'eliminar', 'stock'
+  const [subVistaVentas, setSubVistaVentas] = useState('menu'); // 'menu', 'nueva', 'historial'
 
   const [vinos, setVinos] = useState([]);
   const [vinoEditando, setVinoEditando] = useState(null);
@@ -28,21 +32,52 @@ function App() {
     }
   }, []);
   const obtenerVinos = async () => {
-    const res = await fetch('http://localhost:5000/api/vinos');
-    const data = await res.json();
-    setVinos(data);
+    try {
+      const token = usuarioLogueado?.token || JSON.parse(localStorage.getItem('userVinoteca'))?.token;
+      const res = await fetch('http://localhost:5000/api/vinos', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setVinos(Array.isArray(data) ? data : []);
+      } else if (res.status === 401) {
+        manejarLogout(); // Token vencido o inválido
+      } else {
+        setVinos([]);
+      }
+    } catch (err) {
+      console.error(err);
+      setVinos([]);
+    }
   };
+
   const obtenerUsuarios = async () => {
-    const res = await fetch('http://localhost:5000/api/users');
-    const data = await res.json();
-    setUser(data);
+    try {
+      const token = usuarioLogueado?.token || JSON.parse(localStorage.getItem('userVinoteca'))?.token;
+      const res = await fetch('http://localhost:5000/api/users', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setUser(Array.isArray(data) ? data : []);
+      } else if (res.status === 401) {
+        manejarLogout(); // Token vencido o inválido (aunque App.jsx ya filtraría por rol)
+      } else {
+        setUser([]);
+      }
+    } catch (err) {
+      console.error(err);
+      setUser([]);
+    }
   };
 
   const eliminarUsuario = async (id) => {
     if (window.confirm('¿Seguro que quieres eliminar este usuario?')) {
       try {
+        const token = usuarioLogueado?.token || JSON.parse(localStorage.getItem('userVinoteca'))?.token;
         const res = await fetch(`http://localhost:5000/api/users/${id}`, {
           method: 'DELETE',
+          headers: { Authorization: `Bearer ${token}` }
         });
         if (res.ok) {
           setUser(user.filter(u => u._id !== id));
@@ -52,6 +87,11 @@ function App() {
       }
     }
   };
+
+  const manejarLogout = () => {
+    localStorage.removeItem('userVinoteca');
+    setUsuarioLogueado(null);
+  };
   const manejarEliminacionLocal = (id) => {
     // Usamos la versión de función de setState para asegurarnos 
     // de tener el estado más reciente (prevVinos)
@@ -59,40 +99,166 @@ function App() {
   };
 
 
+  if (!usuarioLogueado) {
+    return <Login onLoginSuccess={setUsuarioLogueado} />;
+  }
+
   return (
-    <div style={styles.contenedorPadre}>
-      <header style={styles.header}>
+    <div className="app-contenedor">
+      <header className="app-header">
         <h1>🍇 Vinoteca "La Cepa"</h1>
-        <nav style={styles.nav}>
+        <nav className="app-nav">
           <button
-            onClick={() => setVista('vinos')}
-            style={vista === 'vinos' ? styles.btnActivo : styles.btnNav}
+            onClick={() => { setVista('vinos'); setSubVistaVinos('menu'); }}
+            className={vista === 'vinos' ? 'app-btn-activo' : 'app-btn-nav'}
           >
             Gestión de Vinos
           </button>
           <button
-            onClick={() => setVista('usuarios')}
-            style={vista === 'usuarios' ? styles.btnActivo : styles.btnNav}
+            onClick={() => { setVista('ventas'); setSubVistaVentas('menu'); }}
+            className={vista === 'ventas' ? 'app-btn-activo' : 'app-btn-nav'}
           >
-            Gestión de Usuarios
+            Gestión de Ventas
+          </button>
+          {usuarioLogueado?.isAdmin && (
+            <button
+              onClick={() => setVista('usuarios')}
+              className={vista === 'usuarios' ? 'app-btn-activo' : 'app-btn-nav'}
+            >
+              Gestión de Usuarios
+            </button>
+          )}
+          <button
+            onClick={manejarLogout}
+            className="app-btn-logout"
+          >
+            Cerrar Sesión
           </button>
         </nav>
       </header>
 
-      <main style={styles.contenido}>
+      <main className="app-contenido">
         {/* RENDERIZADO CONDICIONAL: Solo muestra lo que elegiste */}
-        {vista === 'vinos' ? (
+        {vista === 'vinos' || !usuarioLogueado?.isAdmin ? (
           <section>
-            <FormularioVino
-              onActualizar={obtenerVinos}
-              vinoEditando={vinoEditando}
-              setVinoEditando={setVinoEditando}
-            />
-            <ListaVinos
-              vinos={vinos}
-              onActualizar={obtenerVinos}
-              onEditar={setVinoEditando}
-            />
+            {subVistaVinos === 'menu' && (
+              <div className="app-dashboard-container">
+                <h2 className="app-menu-title">Menú de Vinos</h2>
+                <div className="app-card-grid">
+                  <div className="app-action-card" onClick={() => setSubVistaVinos('ingreso')}>
+                    <h2>🍷 Ingreso de Vinos</h2>
+
+                  </div>
+                  <div className="app-action-card" onClick={() => setSubVistaVinos('modificar')}>
+                    <h2>✏️ Modificación de Vinos</h2>
+
+                  </div>
+                  <div className="app-action-card" onClick={() => setSubVistaVinos('eliminar')}>
+                    <h2>🗑️ Eliminación de Vinos</h2>
+
+                  </div>
+                  <div className="app-action-card" onClick={() => setSubVistaVinos('stock')}>
+                    <h2>📦 Ver Stock</h2>
+
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {subVistaVinos !== 'menu' && (
+              <div className="app-volver-container">
+                <button
+                  onClick={() => { setSubVistaVinos('menu'); setVinoEditando(null); }}
+                  className="app-btn-nav"
+                >
+                  ⬅️ Volver al menú
+                </button>
+              </div>
+            )}
+
+            {subVistaVinos === 'ingreso' && (
+              <FormularioVino
+                onActualizar={obtenerVinos}
+                vinoEditando={null}
+                setVinoEditando={() => { }}
+              />
+            )}
+
+            {subVistaVinos === 'modificar' && (
+              <>
+                {vinoEditando && (
+                  <FormularioVino
+                    onActualizar={obtenerVinos}
+                    vinoEditando={vinoEditando}
+                    setVinoEditando={setVinoEditando}
+                  />
+                )}
+                <ListaVinos
+                  vinos={vinos}
+                  onActualizar={obtenerVinos}
+                  onEditar={setVinoEditando}
+                  modo="modificar" // Añadimos propiedad modo
+                />
+              </>
+            )}
+
+            {subVistaVinos === 'eliminar' && (
+              <ListaVinos
+                vinos={vinos}
+                onActualizar={obtenerVinos}
+                onEditar={() => { }}
+                modo="eliminar" // Añadimos propiedad modo
+              />
+            )}
+
+            {subVistaVinos === 'stock' && (
+              <ListaVinos
+                vinos={vinos}
+                onActualizar={obtenerVinos}
+                onEditar={() => { }}
+                modo="stock" // Añadimos propiedad modo
+              />
+            )}
+          </section>
+        ) : vista === 'ventas' ? (
+          <section>
+            {subVistaVentas === 'menu' && (
+              <div className="app-dashboard-container">
+                <h2 className="app-menu-title">Menú de Ventas</h2>
+                <div className="app-card-grid-ventas">
+                  <div className="app-action-card" onClick={() => setSubVistaVentas('nueva')}>
+                    <h3>🛒 Nueva Venta (Caja)</h3>
+                    <p>Registrar una venta y cobrar.</p>
+                  </div>
+                  <div className="app-action-card" onClick={() => setSubVistaVentas('historial')}>
+                    <h3>📋 Historial de Ventas</h3>
+                    <p>Ver todas las ventas pasadas.</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {subVistaVentas !== 'menu' && (
+              <div className="app-volver-container">
+                <button
+                  onClick={() => setSubVistaVentas('menu')}
+                  className="app-btn-nav"
+                >
+                  ⬅️ Volver al menú
+                </button>
+              </div>
+            )}
+
+            {subVistaVentas === 'nueva' && (
+              <CajaVentas
+                vinos={vinos}
+                onVentaRealizada={obtenerVinos} // Refresca stock tras la venta
+              />
+            )}
+
+            {subVistaVentas === 'historial' && (
+              <HistorialVentas />
+            )}
           </section>
         ) : (
           <section>
@@ -101,7 +267,7 @@ function App() {
               usuarioEditando={usuarioEditando}
               setUsuarioEditando={setUsuarioEditando}
             />
-            <div style={{ marginTop: '20px' }}>
+            <div className="app-usuarios-container">
               <h3>Lista de Usuarios Registrados</h3>
               {user.map(u => (
                 <TarjetaUser
@@ -115,17 +281,12 @@ function App() {
           </section>
         )}
       </main>
+
+      <footer className="app-footer">
+        <p>Desarrollado por <strong>Vity</strong> &copy; {new Date().getFullYear()}</p>
+      </footer>
     </div>
   );
 }
-
-const styles = {
-  contenedorPadre: { maxWidth: '900px', margin: '0 auto', fontFamily: 'Arial, sans-serif' },
-  header: { textAlign: 'center', padding: '20px', backgroundColor: '#722f37', color: 'white' },
-  nav: { display: 'flex', justifyContent: 'center', gap: '10px', marginTop: '15px' },
-  contenido: { padding: '20px' },
-  btnNav: { padding: '10px 20px', cursor: 'pointer', backgroundColor: '#9e424b', color: 'white', border: 'none', borderRadius: '4px' },
-  btnActivo: { padding: '10px 20px', cursor: 'pointer', backgroundColor: 'white', color: '#722f37', border: 'none', borderRadius: '4px', fontWeight: 'bold' }
-};
 
 export default App;

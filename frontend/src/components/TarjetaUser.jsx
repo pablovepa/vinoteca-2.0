@@ -1,30 +1,30 @@
 const TarjetaUser = ({ usuario, onEliminar, onEditar }) => {
     return (
-        <div style={styles.card}>
-            <div style={styles.info}>
+        <div className="tu-card">
+            <div className="tu-info">
                 {/* Envolvemos cada dato en un div para forzar el salto de línea */}
-                <div style={styles.dato}>
+                <div className="tu-dato">
                     <strong>Usuario:</strong> {usuario.username}
                 </div>
-                <div style={styles.dato}>
+                <div className="tu-dato">
                     <strong>Email:</strong> {usuario.email}
                 </div>
-                <div style={styles.dato}>
+                <div className="tu-dato">
                     <strong>Rol:</strong> {usuario.isAdmin ? "Administrador" : "Empleado"}
                 </div>
             </div>
 
-            <div style={styles.acciones}>
+            <div className="tu-acciones">
                 <button
                     onClick={() => onEditar(usuario)}
-                    style={styles.btnEditar}
+                    className="tu-btn-editar"
                 >
                     ✏️ Editar
                 </button>
 
                 <button
                     onClick={() => onEliminar(usuario._id)}
-                    style={styles.btnEliminar}
+                    className="tu-btn-eliminar"
                 >
                     🗑️ Eliminar
                 </button>
@@ -33,34 +33,4 @@ const TarjetaUser = ({ usuario, onEliminar, onEditar }) => {
     );
 };
 
-const styles = {
-    card: {
-        display: 'flex',
-        justifyContent: 'space-between',
-        padding: '15px',
-        backgroundColor: '#0a0909ff',
-        borderBottom: '1px solid #ddd',
-        alignItems: 'center'
-    },
-    acciones: {
-        display: 'flex',
-        gap: '10px'
-    },
-    btnEditar: {
-        backgroundColor: '#f39c12',
-        color: 'white',
-        border: 'none',
-        padding: '8px 12px',
-        borderRadius: '4px',
-        cursor: 'pointer'
-    },
-    btnEliminar: {
-        backgroundColor: '#e74c3c',
-        color: 'white',
-        border: 'none',
-        padding: '8px 12px',
-        borderRadius: '4px',
-        cursor: 'pointer'
-    }
-};
 export default TarjetaUser;

@@ -6,6 +6,7 @@ import cors from 'cors';
 import connectDB from './config/db.js';
 import vinoRoutes from './routes/vinoRoutes.js'; // Importamos las rutas
 import userRoutes from './routes/userRouter.js';
+import orderRoutes from './routes/orderRoutes.js';
 
 dotenv.config();
 
@@ -25,6 +26,7 @@ connectDB(process.env.MONGO_URI);
 // Usar las rutas
 app.use('/api/vinos', vinoRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/ventas', orderRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(` Servidor en http://localhost:${PORT}`));
