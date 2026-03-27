@@ -2,7 +2,11 @@ import Vino from '../models/Vino.js';
 
 export const createVino = async (req, res) => {
   try {
-    const nuevoVino = new Vino(req.body);
+    const datos = { ...req.body };
+    if (req.file) {
+      datos.image = `/uploads/${req.file.filename}`;
+    }
+    const nuevoVino = new Vino(datos);
     const guardado = await nuevoVino.save();
     res.status(201).json(guardado);
   } catch (error) {
@@ -14,8 +18,11 @@ export const createVino = async (req, res) => {
 export const updateVino = async (req, res) => {
   try {
     const { id } = req.params;
-    // { new: true } sirve para que devuelva el vino ya editado y no el viejo
-    const vinoActualizado = await Vino.findByIdAndUpdate(id, req.body, { new: true });
+    const datos = { ...req.body };
+    if (req.file) {
+      datos.image = `/uploads/${req.file.filename}`;
+    }
+    const vinoActualizado = await Vino.findByIdAndUpdate(id, datos, { new: true });
 
     if (!vinoActualizado) {
       return res.status(404).json({ mensaje: "Vino no encontrado" });
@@ -34,6 +41,16 @@ export const getVinos = async (req, res) => {
     res.status(200).json(vinos);
   } catch (error) {
     res.status(500).json({ mensaje: "Error al obtener vinos", error: error.message });
+  }
+};
+
+export const getVinoById = async (req, res) => {
+  try {
+    const vino = await Vino.findById(req.params.id);
+    if (!vino) return res.status(404).json({ mensaje: "Vino no encontrado" });
+    res.status(200).json(vino);
+  } catch (error) {
+    res.status(500).json({ mensaje: "Error al obtener el vino", error: error.message });
   }
 };
 export const deleteVino = async (req, res) => {

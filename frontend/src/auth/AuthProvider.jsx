@@ -12,18 +12,16 @@ const [loading, setLoading] = useState(true)
 
 
 useEffect(() => {
-const token = localStorage.getItem('eg_token')
-const userJson = localStorage.getItem('eg_user')
-if (token && userJson) setUser(JSON.parse(userJson))
+const userJson = localStorage.getItem('userVinoteca')
+if (userJson) setUser(JSON.parse(userJson))
 setLoading(false)
 }, [])
 
 
-const login = async (usernameOrEmail, password) => {
-const res = await api.post('/auth/login', { usernameOrEmail, password })
-localStorage.setItem('eg_token', res.data.token)
-localStorage.setItem('eg_user', JSON.stringify(res.data.user))
-setUser(res.data.user)
+const login = async (email, password) => {
+const res = await api.post('/users/login', { email, password })
+localStorage.setItem('userVinoteca', JSON.stringify(res.data))
+setUser(res.data)
 return res.data
 }
 
@@ -38,8 +36,7 @@ return res.data
 
 
 const logout = () => {
-localStorage.removeItem('eg_token')
-localStorage.removeItem('eg_user')
+localStorage.removeItem('userVinoteca')
 setUser(null)
 }
 

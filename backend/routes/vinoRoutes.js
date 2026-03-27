@@ -1,17 +1,19 @@
 import express from 'express';
-import { getVinos, createVino, deleteVino, updateVino } from '../controllers/vinoController.js';
+import { getVinos, getVinoById, createVino, deleteVino, updateVino } from '../controllers/vinoController.js';
 import { protect } from '../middleware/authMiddleware.js';
+import upload from '../middleware/uploadMiddleware.js';
 
 const router = express.Router();
 
-// Obtener vinos
-router.get('/', protect, getVinos);
+// Obtener vinos (ruta pública para que el Shop pueda ver el catálogo sin login)
+router.get('/', getVinos);
+router.get('/:id', getVinoById);
 
-// Crear vino (solo admin o empleado autenticado)
-router.post('/', protect, createVino);
+// Crear vino (solo admin o empleado autenticado) - acepta imagen
+router.post('/', protect, upload.single('image'), createVino);
 
-// Editar vino (solo admin o empleado autenticado)
-router.put('/:id', protect, updateVino);
+// Editar vino (solo admin o empleado autenticado) - acepta imagen
+router.put('/:id', protect, upload.single('image'), updateVino);
 
 // Eliminar vino (solo admin o empleado autenticado)
 router.delete('/:id', protect, deleteVino);

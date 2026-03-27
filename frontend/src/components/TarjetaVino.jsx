@@ -30,6 +30,9 @@ const TarjetaVino = ({ vino, onEliminar, onEditar, modo }) => {
             <td className="tv-td"><strong>{vino.nombre}</strong></td>
             <td className="tv-td">{vino.bodega}</td>
             <td className="tv-td">${vino.precio}</td>
+            <td className="tv-td" style={{ color: vino.stock <= 3 ? '#e74c3c' : vino.stock <= 10 ? '#f39c12' : '#27ae60', fontWeight: 'bold' }}>
+              {vino.stock} u.
+            </td>
             {modo !== 'stock' && (
                 <td className="tv-td">
                     {modo === 'modificar' && (

@@ -27,6 +27,10 @@ const vinoSchema = new mongoose.Schema({
   stock: {
     type: Number,
     default: 0
+  },
+  image: {
+    type: String,
+    default: null
   }
 }, {
   timestamps: true // Esto crea automáticamente campos de "createdAt" y "updatedAt"

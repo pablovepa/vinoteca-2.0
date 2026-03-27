@@ -11,6 +11,7 @@ const ListaVinos = ({ vinos, onActualizar, onEditar, modo }) => {
                             <th className="lv-th">Nombre</th>
                             <th className="lv-th">Bodega</th>
                             <th className="lv-th">Precio</th>
+                            <th className="lv-th">Stock</th>
                             {modo !== 'stock' && <th className="lv-th">Acciones</th>}
                         </tr>
                     </thead>
